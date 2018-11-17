@@ -23,6 +23,12 @@ public class ClientInstance {
     this.outToServer = new DataOutputStream(controlSocket.getOutputStream());
   }
 
+  /**
+   * It can only retrieve a file from the server, or interrupt the connection.
+   * @param sentence
+   * @return
+   * @throws Exception
+   */
   public boolean executeCommand(String sentence) throws Exception{
     StringTokenizer token = new StringTokenizer(sentence);
     String command = token.nextToken();
