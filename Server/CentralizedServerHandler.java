@@ -11,10 +11,11 @@ import java.io.*;
 public class CentralizedServerHandler implements Runnable {
   // Use Vectors to have a synchronized list. This way, multiple threads won't be
   // able to change the list at the same time.
-  protected static Vector userList;
-  protected static Vector fileList;
+  protected static Vector<UserElement> userList = new Vector<UserElement>();
+  protected static Vector<FileElement> fileList = new Vector<FileElement>();
 
   private Socket connectionSocket;
+  private Socket dataSocket;
 
   private DataOutputStream outToClient;
   private BufferedReader inFromClient;
@@ -30,8 +31,10 @@ public class CentralizedServerHandler implements Runnable {
     this.connectionSocket = connection;
     this.outToClient = new DataOutputStream(this.connectionSocket.getOutputStream());
     this.inFromClient = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
+    
     this.welcomeMessage = true;
     this.running = true;
+    System.out.println("Connection created");
   }
 
   public void run() {
@@ -56,11 +59,14 @@ public class CentralizedServerHandler implements Runnable {
 
   private void processRequest(String sentence) throws Exception {
     StringTokenizer tokens = new StringTokenizer(sentence);
-    String command = tokens.nextToken();
+    this.dataSocket = new Socket(this.connectionSocket.getInetAddress(), Integer.parseInt(tokens.nextToken()));
+    this.dataInFromClient = new DataInputStream(new BufferedInputStream(this.dataSocket.getInputStream()));
+    //String command = tokens.nextToken();
 
-    if (command.equals("search:")) {
+    //if (command.equals("search")) {
+    	System.out.println("A client requested a keyword search");
       searchCommand(tokens.nextToken());
-    }
+    //}
   }
 
   private void searchCommand(String keyword) throws Exception {
@@ -75,35 +81,49 @@ public class CentralizedServerHandler implements Runnable {
             output += user.getSpeed() + " " + user.getHostName() + " " + fileEntry.getFileName() + " \n";
           }
         }
+        
         this.outToClient.writeUTF(output);
+        this.dataInFromClient.close();
+        this.dataSocket.close();
 
       }
     }
   }
 
   private void getInitialRequest() throws Exception {
+	  System.out.println("Waiting for user's data");
     String userInfo = this.inFromClient.readLine();
+    System.out.println("User's data received");
     StringTokenizer parseUserInfo = new StringTokenizer(userInfo);
+    this.dataSocket = new Socket(this.connectionSocket.getInetAddress(), Integer.parseInt(parseUserInfo.nextToken()));
+    System.out.println("First Token");
     String userName = parseUserInfo.nextToken();
+    System.out.println("Second Token");
     String speed = parseUserInfo.nextToken();
+    System.out.println("Third Token");
     String hostName = parseUserInfo.nextToken();
+    System.out.println("done with Token");
     UserElement user = new UserElement(userName, speed, hostName);
+    System.out.println("Adding the user");
     addUser(user);
-
+    
+    System.out.println("User added");
+    
     File file = getFile();
     ArrayList<FileElement> files = parseData(file, user);
     addContent(files);
     this.welcomeMessage = false;
-    this.outToClient.writeUTF("OK");
+    System.out.println("Initial connection completed");
   }
 
   private File getFile() throws Exception {
     System.out.println("A client is sending a xml file...");
     FileOutputStream fos = new FileOutputStream("temp.xml");
+    System.out.println("File Stream created");
     byte[] fileData = new byte[1024];
     int bytes;
     while ((bytes = this.dataInFromClient.read(fileData)) != -1) {
-      // System.out.println("Bytes sent: " + bytes);
+      System.out.println("Bytes sent: " + bytes);
       fos.write(fileData, 0, bytes);
     }
     System.out.println("File received!");
@@ -142,7 +162,9 @@ public class CentralizedServerHandler implements Runnable {
 
   private void addUser(UserElement newUser) {
     synchronized (userList) {
+    	System.out.println("Adding user to the list");
       userList.addElement(newUser);
+      System.out.println("added user to the list");
     }
   }
 

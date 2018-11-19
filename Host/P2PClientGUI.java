@@ -12,11 +12,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
-import com.sun.security.ntlm.Client;
-
 import java.awt.Color;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -29,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
 import java.awt.event.ActionEvent;
@@ -54,7 +52,8 @@ public class P2PClientGUI extends JFrame {
 
   /** Host: P2P Client and Server */
   private ClientInstance client;
-  private FTPServer server;
+  private ServerSocket welcomeData;
+  //private FTPServer server;
 
   /**
    * Launch the application.
@@ -73,9 +72,14 @@ public class P2PClientGUI extends JFrame {
     });
   }
 
-  private boolean connect(String serverInfo, String userInfo) throws Exception {
-
-    StringTokenizer tokens = new StringTokenizer(serverInfo);
+  private void connect(String serverInfo, String userInfo) throws Exception {
+	  
+	  System.out.println("Connect 1");
+	  welcomeData = new ServerSocket(7635);
+	  
+	  DataOutputStream outData;
+	 
+	  StringTokenizer tokens = new StringTokenizer(serverInfo);
 
     String serverName = tokens.nextToken();
     int controlPort = Integer.parseInt(tokens.nextToken());
@@ -84,8 +88,11 @@ public class P2PClientGUI extends JFrame {
     outToServer = new DataOutputStream(controlSocket.getOutputStream());
     inFromServer = new DataInputStream(new BufferedInputStream(controlSocket.getInputStream()));
 
-    outToServer.writeUTF(userInfo);
-
+    outToServer.writeUTF("7635 " + userInfo);
+    Socket dataSocket = welcomeData.accept();
+    
+    System.out.println("Sent user info");
+    
     FileInputStream file = new FileInputStream("filelist.xml");
     byte[] buffer = new byte[1024];
     int bytes = 0;
@@ -93,12 +100,14 @@ public class P2PClientGUI extends JFrame {
       outToServer.write(buffer, 0, bytes);
     }
     file.close();
-    return inFromServer.readUTF().equals("OK");
+    System.out.println("File sent");
 
   }
 
   private void fileSearch(String keyword) throws Exception {
+	  System.out.println("Search initiated");
     this.outToServer.writeUTF(keyword);
+    System.out.println("Keyword sent");
     String word = this.inFromServer.readUTF();
     StringTokenizer tokens = new StringTokenizer(word);
     tModel = new DefaultTableModel(columnNames, 0);
@@ -248,29 +257,8 @@ public class P2PClientGUI extends JFrame {
     gbc_speedInput.gridy = 2;
     ConnectionPanel.add(speedInput, gbc_speedInput);
 
-    // Search Button for keyword search
-    JButton fileSearch = new JButton("Search");
-    fileSearch.setEnabled(false);
-    fileSearch.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-
-      }
-    });
-
     JButton btnConnnect = new JButton("Connect");
-    btnConnnect.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent p) {
-        String serverInfo = hostnameInput.getText() + " " + portInput.getText();
-        String userInfo = usernameInput.getText() + " " + speedInput.getSelectedIndex() + " " + serverInput.getText();
-        try {
-          server = new FTPServer();
-
-          fileSearch.setEnabled(connect(serverInfo, userInfo));
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    });
+    
 
     GridBagConstraints gbc_btnConnnect = new GridBagConstraints();
     gbc_btnConnnect.fill = GridBagConstraints.BOTH;
@@ -304,6 +292,39 @@ public class P2PClientGUI extends JFrame {
     table.setPreferredScrollableViewportSize(new Dimension(300, 100));
     // table.setFillsViewportHeight(true);
 
+    // Search Button for keyword search
+    JButton fileSearch = new JButton("Search");
+    fileSearch.setEnabled(false);
+    fileSearch.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+    	  try {
+    	  fileSearch(keywordInput.getText());
+    	  }
+    	  catch(Exception e) {
+    		  e.printStackTrace();
+    	  }
+      }
+    });
+    
+    btnConnnect.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent p) {
+      	System.out.println("Connect button pressed");
+      	if(!hostnameInput.getText().isEmpty() && !portInput.getText().isEmpty() && !usernameInput.getText().isEmpty() && !serverInput.getText().isEmpty()) {
+          String serverInfo = hostnameInput.getText() + " " + portInput.getText();
+          String userInfo = usernameInput.getText() + " " + speedInput.getSelectedIndex() + " " + serverInput.getText();
+          try {
+          	System.out.println("Before server");
+            //server = new FTPServer();
+            System.out.println("After server");
+            connect(serverInfo, userInfo);
+            fileSearch.setEnabled(true);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+        }
+      });
+    
     JScrollPane test = new JScrollPane(table);
 
     contentPane.add(SearchPanel, gbc_SearchPanel);
