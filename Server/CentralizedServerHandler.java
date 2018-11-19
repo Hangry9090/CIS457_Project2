@@ -80,11 +80,6 @@ public class CentralizedServerHandler implements Runnable {
   }
 
   private void getInitialRequest() {
-
-    /*
-     * TODO: accept the user and the xml file TODO: create a UserElement with info
-     * from the user.
-     */
     String userInfo = this.inFromClient.readLine();
     StringTokenizer parseUserInfo = StringTokenizer(userInfo);
     String userName = parseUserInfo.nextToken();
