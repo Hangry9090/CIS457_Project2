@@ -10,6 +10,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
+
+import com.sun.security.ntlm.Client;
+
 import java.awt.Color;
 
 import java.awt.Component;
@@ -37,7 +40,10 @@ public class P2PClientGUI extends JFrame {
 	private JTextField usernameInput;
 	private JTextField hostnameInput;
 	private JTextField keywordInput;
-	private JTextField commandInput;
+  private JTextField commandInput;
+  
+  private ClientInstance client;
+  private FTPServer server;
 
 	/**
 	 * Launch the application.
@@ -76,7 +82,7 @@ public class P2PClientGUI extends JFrame {
 	    	outToServer.write(buffer, 0, bytes);
 	    }
 	    file.close();
-	    return inFromServer.equals("OK");  
+	    return inFromServer.readUTF().equals("OK");  
 	    
 	}
 	
@@ -89,7 +95,7 @@ public class P2PClientGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public P2PClientGUI() throws Exception{
-		
+    
 		setTitle("P2P Project 2");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -231,7 +237,7 @@ public class P2PClientGUI extends JFrame {
 			public void actionPerformed(ActionEvent p) {
 				String serverInfo = hostnameInput.getText() + " " + portInput.getText();
 				String userInfo = usernameInput.getText() + " " + speedInput.getSelectedIndex() + " " + serverInput.getText();
-				
+				server = new FTPServer();
 				try {
 					fileSearch.setEnabled(connect(serverInfo,userInfo));
 				} catch (Exception e) {
@@ -316,9 +322,20 @@ public class P2PClientGUI extends JFrame {
 		JButton commandBtn = new JButton("Go");
 		commandBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String command = commandInput.getText();
+        String command = commandInput.getText();
+        StringTokenizer tokens = new StringTokenizer(command);
 				commandArea.setText(">>" + command);
-				
+				if (tokens.nextToken().equals("connect")) {
+          String serverName = tokens.nextToken();
+          int port = Integer.parseInt(tokens.nextToken());
+          
+          client = new ClientInstance(serverName, port);
+    
+          commandArea.setText("Connected to " + serverName + ":" + port);
+        }
+        else{
+          commandArea.setText(client.executeCommand(command));
+        }
 				
 			}
 		});

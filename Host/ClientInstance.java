@@ -29,7 +29,8 @@ public class ClientInstance {
    * @return
    * @throws Exception
    */
-  public boolean executeCommand(String sentence) throws Exception{
+  public String executeCommand(String sentence) throws Exception{
+    String returnMessage;
     StringTokenizer token = new StringTokenizer(sentence);
     String command = token.nextToken();
     command = command.toLowerCase();
@@ -37,13 +38,14 @@ public class ClientInstance {
     setUpConnection(sentence);
 
     if (command.equals("retr:")) {
-      retrieveFile(token.nextToken());
+      String fileName = token.nextToken();
+      retrieveFile(fileName);
+      message = "Succesfully downloaded \"" + fileName + "\".";
     } else if (command.equals("quit:")){
-      closeConnection();
-      return false;
+      message = "Disconnected from server.";
     } 
     closeConnection();
-    return true;
+    return message;
   }
 
   /**
