@@ -12,7 +12,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
-import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -22,6 +21,12 @@ import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.net.Socket;
+import java.util.StringTokenizer;
 import java.awt.event.ActionEvent;
 import javax.swing.JTable;
 
@@ -32,7 +37,7 @@ public class P2PClientGUI extends JFrame {
 	private JTextField usernameInput;
 	private JTextField hostnameInput;
 	private JTextField keywordInput;
-	private JTextField comandInput;
+	private JTextField commandInput;
 
 	/**
 	 * Launch the application.
@@ -50,11 +55,40 @@ public class P2PClientGUI extends JFrame {
 			}
 		});
 	}
+	
+	private boolean connect(String serverInfo, String userInfo) throws Exception{
+		
+		StringTokenizer tokens = new StringTokenizer(serverInfo);
+		
+		String serverName = tokens.nextToken();
+	    int controlPort = Integer.parseInt(tokens.nextToken());
+	    
+	    Socket controlSocket = new Socket(serverName, controlPort);
+	    DataOutputStream outToServer = new DataOutputStream(controlSocket.getOutputStream());
+	    DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (controlSocket.getInputStream()));
+	    
+	    outToServer.writeUTF(userInfo);
+	    
+	    FileInputStream file = new FileInputStream("filelist.xml");
+	    byte[] buffer = new byte[1024];
+	    int bytes = 0;
+	    while((bytes = file.read(buffer)) != -1){
+	    	outToServer.write(buffer, 0, bytes);
+	    }
+	    file.close();
+	    return inFromServer.equals("OK");  
+	    
+	}
+	
+	private void fileSearch() {
+		
+	}
+	
 
 	/**
 	 * Create the frame.
 	 */
-	public P2PClientGUI() {
+	public P2PClientGUI() throws Exception{
 		
 		setTitle("P2P Project 2");
 		setResizable(false);
@@ -164,7 +198,6 @@ public class P2PClientGUI extends JFrame {
 		gbc_serverInput.gridx = 3;
 		gbc_serverInput.gridy = 1;
 		ConnectionPanel.add(serverInput, gbc_serverInput);
-		ConnectionPanel.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{lblServer, serverInput, lblPort, portInput, lblUsername, usernameInput}));
 		
 		JLabel lblSpeed = new JLabel("Speed:");
 		lblSpeed.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -176,7 +209,7 @@ public class P2PClientGUI extends JFrame {
 		ConnectionPanel.add(lblSpeed, gbc_lblSpeed);
 		
 		JComboBox speedInput = new JComboBox();
-		speedInput.setModel(new DefaultComboBoxModel(new String[] {"Ethernet", "Wifi"}));
+		speedInput.setModel(new DefaultComboBoxModel(new String[] {"Ethernet", "T1", "T3"}));
 		GridBagConstraints gbc_speedInput = new GridBagConstraints();
 		gbc_speedInput.fill = GridBagConstraints.BOTH;
 		gbc_speedInput.insets = new Insets(0, 0, 0, 5);
@@ -184,9 +217,26 @@ public class P2PClientGUI extends JFrame {
 		gbc_speedInput.gridy = 2;
 		ConnectionPanel.add(speedInput, gbc_speedInput);
 		
-		JButton btnConnnect = new JButton("Connect");
-		btnConnnect.addActionListener(new ActionListener() {
+		// Search Button for keyword search
+		JButton fileSearch = new JButton("Search");
+		fileSearch.setEnabled(false);
+		fileSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		
+		JButton btnConnnect = new JButton("Connect");
+		btnConnnect.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent p) {
+				String serverInfo = hostnameInput.getText() + " " + portInput.getText();
+				String userInfo = usernameInput.getText() + " " + speedInput.getSelectedIndex() + " " + serverInput.getText();
+				
+				try {
+					fileSearch.setEnabled(connect(serverInfo,userInfo));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -216,13 +266,6 @@ public class P2PClientGUI extends JFrame {
 		keywordInput = new JTextField();
 		keywordInput.setColumns(25);
 		
-		// Search Button for keyword search
-		JButton fileSearch = new JButton("Search");
-		btnConnnect.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-			}
-		});
 		
 		String[] columnNames = {"Speed", "Hostname", "Filename"};
 		String[][] testData = {
@@ -261,26 +304,29 @@ public class P2PClientGUI extends JFrame {
 		
 		JLabel CommandLbl = new JLabel("Enter Command: ");
 		
-		comandInput = new JTextField();
-		comandInput.setColumns(20);
-		
-		// Search Button for keyword search
-		JButton commandBtn = new JButton("Search");
-		btnConnnect.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-			}
-		});
+		commandInput = new JTextField();
+		commandInput.setColumns(20);
 		
 		JTextArea commandArea = new JTextArea(14,58);
 		commandArea.setEditable(false);
 		JScrollPane scroll = new JScrollPane(commandArea);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
+		// Search Button for keyword search
+		JButton commandBtn = new JButton("Go");
+		commandBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String command = commandInput.getText();
+				commandArea.setText(">>" + command);
+				
+				
+			}
+		});
 		
+
 		contentPane.add(FTPPanel, gbc_FTPPanel);
 		FTPPanel.add(CommandLbl);
-		FTPPanel.add(comandInput);
+		FTPPanel.add(commandInput);
 		FTPPanel.add(commandBtn);
 		FTPPanel.add(scroll);
 		

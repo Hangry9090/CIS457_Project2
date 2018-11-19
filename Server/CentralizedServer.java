@@ -1,3 +1,6 @@
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class CentralizedServer{
   public static void main(String[] args){
     System.out.println("Welcome to our server!");
@@ -11,6 +14,5 @@ public class CentralizedServer{
       Thread thread = new Thread(connection);
       thread.start();
     }
-  }
   }
 }

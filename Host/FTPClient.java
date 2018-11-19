@@ -7,16 +7,10 @@ import javax.swing.*;
 
 class FTPClient {
 
-  public static void main(String argv[]) throws Exception {
-    String sentence;
+  public  FTPClient(String sentence) throws Exception {
     boolean isOpen = true;
     boolean clientgo = true;
 
-    System.out.println("Welcome to our client!");
-    System.out.println("Type connect <ip> <port> to get started");
-
-    BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-    sentence = inFromUser.readLine();
     StringTokenizer tokens = new StringTokenizer(sentence);
     //inFromUser.close();
 
