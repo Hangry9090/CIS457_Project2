@@ -10,6 +10,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 
 import com.sun.security.ntlm.Client;
 
@@ -41,7 +42,10 @@ public class P2PClientGUI extends JFrame {
   private JTextField hostnameInput;
   private JTextField keywordInput;
   private JTextField commandInput;
+  
   private JTable table;
+  private DefaultTableModel tModel;
+  private String[] columnNames = { "Speed", "Hostname", "Filename" };
 
   /** Centralized server */
   private Socket controlSocket;
@@ -98,6 +102,7 @@ public class P2PClientGUI extends JFrame {
     this.outToServer.writeUTF(keyword);
     String word = this.inFromServer.readUTF();
     StringTokenizer tokens = new StringTokenizer(word);
+    tModel = new DefaultTableModel(columnNames, 0);
     while(tokens.hasMoreTokens()){
       String speed = tokens.nextToken();
       String hostName = tokens.nextToken();
@@ -106,9 +111,12 @@ public class P2PClientGUI extends JFrame {
         updateTable(speed, hostName, fileName);
       }
     }
+    tModel.fireTableDataChanged();
   }
 
   private void updateTable(String speed, String hostName, String fileName){
+    String[] data = {speed, hostName, fileName};
+    tModel.addRow(data);
   }
   /**
    * Create the frame.
@@ -288,10 +296,10 @@ public class P2PClientGUI extends JFrame {
     keywordInput = new JTextField();
     keywordInput.setColumns(25);
 
-    String[] columnNames = { "Speed", "Hostname", "Filename" };
-    String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
-
-    table = new JTable(testData, columnNames);
+    //String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
+    
+    tModel = new DefaultTableModel(columnNames, 0);
+    table = new JTable(tModel);
     table.setPreferredScrollableViewportSize(new Dimension(300, 100));
     // table.setFillsViewportHeight(true);
 

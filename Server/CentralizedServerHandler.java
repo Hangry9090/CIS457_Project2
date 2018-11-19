@@ -29,7 +29,6 @@ public class CentralizedServerHandler implements Runnable {
     this.inFromClient = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
     this.welcomeMessage = true;
     this.running = true;
-
   }
 
   public void run() {
