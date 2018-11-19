@@ -13,7 +13,7 @@ public class FTPRequest implements Runnable {
   private BufferedReader inFromClient;
 
   private DataOutputStream dataOutToClient;
-  //private DataInputStream dataInFromClient;
+  // private DataInputStream dataInFromClient;
 
   private boolean running;
 
@@ -49,7 +49,8 @@ public class FTPRequest implements Runnable {
     this.dataSocket = new Socket(this.connectionSocket.getInetAddress(), port);
 
     this.dataOutToClient = new DataOutputStream(this.dataSocket.getOutputStream());
-    //this.dataInFromClient = new DataInputStream(new BufferedInputStream(this.dataSocket.getInputStream()));
+    // this.dataInFromClient = new DataInputStream(new
+    // BufferedInputStream(this.dataSocket.getInputStream()));
 
     if (command.equals("retr:")) {
       retrCommand(tokens.nextToken());
@@ -73,7 +74,7 @@ public class FTPRequest implements Runnable {
 
   private void endConnection() throws Exception {
     this.dataOutToClient.close();
-    //this.dataInFromClient.close();
+    // this.dataInFromClient.close();
     this.dataSocket.close();
   }
 

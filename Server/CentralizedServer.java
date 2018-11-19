@@ -1,8 +1,8 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class CentralizedServer{
-  public static void main(String[] args){
+public class CentralizedServer {
+  public static void main(String[] args) throws Exception {
     System.out.println("Welcome to our server!");
     ServerSocket welcomeSocket = new ServerSocket(2840);
     while (true) {

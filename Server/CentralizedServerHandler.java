@@ -1,6 +1,9 @@
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.lang.Runnable;
+import java.net.Socket;
+
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import java.io.*;
@@ -23,7 +26,7 @@ public class CentralizedServerHandler implements Runnable {
 
   boolean welcomeMessage;
 
-  public CentralizedServerHandler() {
+  public CentralizedServerHandler(Socket connection) throws Exception {
     this.connectionSocket = connection;
     this.outToClient = new DataOutputStream(this.connectionSocket.getOutputStream());
     this.inFromClient = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
@@ -32,10 +35,14 @@ public class CentralizedServerHandler implements Runnable {
   }
 
   public void run() {
-    if (welcomeMessage) {
-      getInitialRequest();
-    } else {
-      waitForRequest();
+    try {
+      if (welcomeMessage) {
+        getInitialRequest();
+      } else {
+        waitForRequest();
+      }
+    } catch (Exception e) {
+      System.out.println(e);
     }
   }
 
@@ -53,19 +60,15 @@ public class CentralizedServerHandler implements Runnable {
 
     if (command.equals("search:")) {
       searchCommand(tokens.nextToken());
-    } else if (command.equals("quit:")) {
-      endConnection();
-      connectionShutdown();
     }
-
   }
 
-  private void searchCommand(String keyword) {
+  private void searchCommand(String keyword) throws Exception {
     synchronized (fileList) {
       synchronized (userList) {
         String output = "";
         for (int i = 0; i < CentralizedServerHandler.fileList.size(); i++) {
-          FileElement fileEntry = CentralizedServerHandler.fileList.get(i);
+          FileElement fileEntry = (FileElement) CentralizedServerHandler.fileList.get(i);
           String description = fileEntry.getDescription();
           if (description.contains(keyword)) {
             UserElement user = fileEntry.getUser();
@@ -78,9 +81,9 @@ public class CentralizedServerHandler implements Runnable {
     }
   }
 
-  private void getInitialRequest() {
+  private void getInitialRequest() throws Exception {
     String userInfo = this.inFromClient.readLine();
-    StringTokenizer parseUserInfo = StringTokenizer(userInfo);
+    StringTokenizer parseUserInfo = new StringTokenizer(userInfo);
     String userName = parseUserInfo.nextToken();
     String speed = parseUserInfo.nextToken();
     String hostName = parseUserInfo.nextToken();
@@ -94,7 +97,7 @@ public class CentralizedServerHandler implements Runnable {
     this.outToClient.writeUTF("OK");
   }
 
-  private File getFile() {
+  private File getFile() throws Exception {
     System.out.println("A client is sending a xml file...");
     FileOutputStream fos = new FileOutputStream("temp.xml");
     byte[] fileData = new byte[1024];
@@ -110,24 +113,24 @@ public class CentralizedServerHandler implements Runnable {
   }
 
   /**
-   * Method to parse a XML file using a DOM parser.
-   * Resource used: https://www.tutorialspoint.com/java_xml/java_dom_parse_document.htm
+   * Method to parse a XML file using a DOM parser. Resource used:
+   * https://www.tutorialspoint.com/java_xml/java_dom_parse_document.htm
+   * 
    * @param file
    * @param user
    * @return
    */
-  private ArrayList<FileElement> parseData(File file, UserElement user) {
+  private ArrayList<FileElement> parseData(File file, UserElement user) throws Exception {
     ArrayList<FileElement> dataList = new ArrayList();
-    DocumentBuilderFactory factory =
-    DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     Document doc = builder.parse(file);
     doc.getDocumentElement().normalize();// Make sure there are no funky things going on in the parser
     NodeList nList = doc.getElementsByTagName("file");
-    for(int i = 0; i < nList.getLength(); i++){
+    for (int i = 0; i < nList.getLength(); i++) {
       FileElement temp = null;
       Node node = nList.item(i);
-      if(node.getNodeType() == Node.ELEMENT_NODE){
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
         Element eTemp = (Element) node;
         temp = new FileElement(user, eTemp.getAttribute("name"), eTemp.getAttribute("description"));
         dataList.add(temp);

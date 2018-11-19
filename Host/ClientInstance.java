@@ -25,12 +25,13 @@ public class ClientInstance {
 
   /**
    * It can only retrieve a file from the server, or interrupt the connection.
+   * 
    * @param sentence
    * @return
    * @throws Exception
    */
-  public String executeCommand(String sentence) throws Exception{
-    String returnMessage;
+  public String executeCommand(String sentence) throws Exception {
+    String message = "";
     StringTokenizer token = new StringTokenizer(sentence);
     String command = token.nextToken();
     command = command.toLowerCase();
@@ -41,15 +42,16 @@ public class ClientInstance {
       String fileName = token.nextToken();
       retrieveFile(fileName);
       message = "Succesfully downloaded \"" + fileName + "\".";
-    } else if (command.equals("quit:")){
+    } else if (command.equals("quit:")) {
       message = "Disconnected from server.";
-    } 
+    }
     closeConnection();
     return message;
   }
 
   /**
    * Choose a port randomly based on how many operations this client made.
+   * 
    * @return
    */
   private int getNewPort() {
@@ -58,6 +60,7 @@ public class ClientInstance {
 
   /**
    * Get a file from the server
+   * 
    * @param fileName the name of the file
    * @throws Exception
    */
@@ -73,21 +76,23 @@ public class ClientInstance {
 
   /**
    * Send the info for the connection to the server.
+   * 
    * @param port
    * @param sentence contains the command for the server to execute
    * @throws Exception
    */
-  private void welcomeMessage(int port, String sentence) throws Exception{
+  private void welcomeMessage(int port, String sentence) throws Exception {
     outToServer.writeBytes(port + " " + sentence + " " + '\n');
   }
 
   /**
    * Open the data socket and the buffers.
+   * 
    * @param sentence
    * @throws Exception
    */
-  private void setUpConnection(String sentence) throws Exception{
-    
+  private void setUpConnection(String sentence) throws Exception {
+
     int connectionPort = getNewPort();
 
     this.welcomeData = new ServerSocket(connectionPort);
@@ -95,14 +100,14 @@ public class ClientInstance {
     welcomeMessage(connectionPort, sentence);
 
     this.dataSocket = this.welcomeData.accept();
-    
+
     this.inData = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
 
-    
   }
 
   /**
    * Close the data connection-related objects.
+   * 
    * @throws Exception
    */
   private void closeConnection() throws Exception {

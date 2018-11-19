@@ -42,7 +42,7 @@ public class P2PClientGUI extends JFrame {
   private JTextField hostnameInput;
   private JTextField keywordInput;
   private JTextField commandInput;
-  
+
   private JTable table;
   private DefaultTableModel tModel;
   private String[] columnNames = { "Speed", "Hostname", "Filename" };
@@ -55,7 +55,6 @@ public class P2PClientGUI extends JFrame {
   /** Host: P2P Client and Server */
   private ClientInstance client;
   private FTPServer server;
-
 
   /**
    * Launch the application.
@@ -98,26 +97,27 @@ public class P2PClientGUI extends JFrame {
 
   }
 
-  private void fileSearch(String keyword) {
+  private void fileSearch(String keyword) throws Exception {
     this.outToServer.writeUTF(keyword);
     String word = this.inFromServer.readUTF();
     StringTokenizer tokens = new StringTokenizer(word);
     tModel = new DefaultTableModel(columnNames, 0);
-    while(tokens.hasMoreTokens()){
+    while (tokens.hasMoreTokens()) {
       String speed = tokens.nextToken();
       String hostName = tokens.nextToken();
       String fileName = tokens.nextToken();
-      if(tokens.nextToken().equals("\n")){ //Throw away corrupted lines that do not end with \n
+      if (tokens.nextToken().equals("\n")) { // Throw away corrupted lines that do not end with \n
         updateTable(speed, hostName, fileName);
       }
     }
     tModel.fireTableDataChanged();
   }
 
-  private void updateTable(String speed, String hostName, String fileName){
-    String[] data = {speed, hostName, fileName};
+  private void updateTable(String speed, String hostName, String fileName) {
+    String[] data = { speed, hostName, fileName };
     tModel.addRow(data);
   }
+
   /**
    * Create the frame.
    */
@@ -262,8 +262,9 @@ public class P2PClientGUI extends JFrame {
       public void actionPerformed(ActionEvent p) {
         String serverInfo = hostnameInput.getText() + " " + portInput.getText();
         String userInfo = usernameInput.getText() + " " + speedInput.getSelectedIndex() + " " + serverInput.getText();
-        server = new FTPServer();
         try {
+          server = new FTPServer();
+
           fileSearch.setEnabled(connect(serverInfo, userInfo));
         } catch (Exception e) {
           e.printStackTrace();
@@ -296,8 +297,8 @@ public class P2PClientGUI extends JFrame {
     keywordInput = new JTextField();
     keywordInput.setColumns(25);
 
-    //String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
-    
+    // String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
+
     tModel = new DefaultTableModel(columnNames, 0);
     table = new JTable(tModel);
     table.setPreferredScrollableViewportSize(new Dimension(300, 100));
@@ -340,15 +341,19 @@ public class P2PClientGUI extends JFrame {
         String command = commandInput.getText();
         StringTokenizer tokens = new StringTokenizer(command);
         commandArea.setText(">>" + command);
-        if (tokens.nextToken().equals("connect")) {
-          String serverName = tokens.nextToken();
-          int port = Integer.parseInt(tokens.nextToken());
+        try {
+          if (tokens.nextToken().equals("connect")) {
+            String serverName = tokens.nextToken();
+            int port = Integer.parseInt(tokens.nextToken());
 
-          client = new ClientInstance(serverName, port);
+            client = new ClientInstance(serverName, port);
 
-          commandArea.setText("Connected to " + serverName + ":" + port);
-        } else {
-          commandArea.setText(client.executeCommand(command));
+            commandArea.setText("Connected to " + serverName + ":" + port);
+          } else {
+            commandArea.setText(client.executeCommand(command));
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
         }
 
       }
