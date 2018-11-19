@@ -37,7 +37,7 @@ public class P2PClientGUI extends JFrame {
 	private JTextField usernameInput;
 	private JTextField hostnameInput;
 	private JTextField keywordInput;
-	private JTextField comandInput;
+	private JTextField commandInput;
 
 	/**
 	 * Launch the application.
@@ -304,26 +304,29 @@ public class P2PClientGUI extends JFrame {
 		
 		JLabel CommandLbl = new JLabel("Enter Command: ");
 		
-		comandInput = new JTextField();
-		comandInput.setColumns(20);
-		
-		// Search Button for keyword search
-		JButton commandBtn = new JButton("Go");
-		btnConnnect.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-			}
-		});
+		commandInput = new JTextField();
+		commandInput.setColumns(20);
 		
 		JTextArea commandArea = new JTextArea(14,58);
 		commandArea.setEditable(false);
 		JScrollPane scroll = new JScrollPane(commandArea);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
+		// Search Button for keyword search
+		JButton commandBtn = new JButton("Go");
+		commandBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String command = commandInput.getText();
+				commandArea.setText(">>" + command);
+				
+				
+			}
+		});
 		
+
 		contentPane.add(FTPPanel, gbc_FTPPanel);
 		FTPPanel.add(CommandLbl);
-		FTPPanel.add(comandInput);
+		FTPPanel.add(commandInput);
 		FTPPanel.add(commandBtn);
 		FTPPanel.add(scroll);
 		
