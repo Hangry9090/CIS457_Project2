@@ -1,6 +1,9 @@
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.lang.Runnable;
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import java.io.*;
 
 public class CentralizedServerHandler implements Runnable {
   // Use Vectors to have a synchronized list. This way, multiple threads won't be
@@ -112,16 +115,30 @@ public class CentralizedServerHandler implements Runnable {
     return file;
   }
 
+  /**
+   * Method to parse a XML file using a DOM parser.
+   * Resource used: https://www.tutorialspoint.com/java_xml/java_dom_parse_document.htm
+   * @param file
+   * @param user
+   * @return
+   */
   private ArrayList<FileElement> parseData(File file, UserElement user) {
     ArrayList<FileElement> dataList = new ArrayList();
-    FileElement temp = null;
-    // FIXME:
-    // https://stackoverflow.com/questions/428073/what-is-the-best-simplest-way-to-read-in-an-xml-file-in-java-application
-    /*
-     * TODO: parse the file, make a fileElement for each paragraph in the file.
-     * TODO: in the end, put all the elements made in a list and return the list.
-     */
-
+    DocumentBuilderFactory factory =
+    DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    Document doc = builder.parse(file);
+    doc.getDocumentElement().normalize();// Make sure there are no funky things going on in the parser
+    NodeList nList = doc.getElementsByTagName("file");
+    for(int i = 0; i < nList.getLength(); i++){
+      FileElement temp = null;
+      Node node = nList.item(i);
+      if(node.getNodeType() == Node.ELEMENT_NODE){
+        Element eTemp = (Element) node;
+        temp = new FileElement(user, eTemp.getAttribute("name"), eTemp.getAttribute("description"));
+        dataList.add(temp);
+      }
+    }
     file.delete();
     return dataList;
   }
