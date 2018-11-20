@@ -39,23 +39,24 @@ public class CentralizedServerHandler implements Runnable {
 
   public void run() {
     try {
+      while(this.running){
       if (welcomeMessage) {
         String userInfo = this.inFromClient.readLine();
         getInitialRequest(userInfo);
       } else {
         waitForRequest();
       }
+    }
     } catch (Exception e) {
       System.out.println(e);
     }
   }
 
   private void waitForRequest() throws Exception {
-    while (this.running) {
+      System.out.println("Waiting for a search request...");
       String fromClient = this.inFromClient.readLine();
       System.out.println("Keyword received");
       processRequest(fromClient);
-    }
   }
 
   private void processRequest(String sentence) throws Exception {
@@ -77,13 +78,11 @@ public class CentralizedServerHandler implements Runnable {
           String description = fileEntry.getDescription();
           if (description.contains(keyword)) {
             UserElement user = fileEntry.getUser();
-            output += user.getSpeed() + " " + user.getHostName() + " " + fileEntry.getFileName() + " \n";
+            output += user.getSpeed() + " " + user.getHostName() + " " + fileEntry.getFileName() + " \t";
           }
         }
-        
-        this.outToClient.writeUTF(output);
-        this.dataInFromClient.close();
-        this.dataSocket.close();
+        System.out.println("Sending back: " + output);
+        this.outToClient.writeBytes(output + " \n");
 
       }
     }
@@ -117,6 +116,8 @@ public class CentralizedServerHandler implements Runnable {
     addContent(files);
     this.welcomeMessage = false;
     System.out.println("Initial connection completed");
+    this.dataInFromClient.close();
+    this.dataSocket.close();
   }
 
   private File getFile() throws Exception {

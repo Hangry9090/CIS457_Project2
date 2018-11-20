@@ -115,24 +115,27 @@ public class P2PClientGUI extends JFrame {
     String toServer = keyword + " \n";
     this.outToServer.writeBytes(toServer);
     System.out.println("Keyword sent");
-    String word = this.inFromServer.readUTF();
+    String word = this.inFromServer.readLine();
     System.out.println("Received a response");
+    System.out.println(word);
     StringTokenizer tokens = new StringTokenizer(word);
     tModel = new DefaultTableModel(columnNames, 0);
     while (tokens.hasMoreTokens()) {
       String speed = tokens.nextToken();
       String hostName = tokens.nextToken();
       String fileName = tokens.nextToken();
-      if (tokens.nextToken().equals("\n")) { // Throw away corrupted lines that do not end with \n
-        updateTable(speed, hostName, fileName);
-      }
+      System.out.println("Updating table: " + speed + " " + hostName + " " + fileName);
+      updateTable(speed, hostName, fileName);
     }
     tModel.fireTableDataChanged();
+    this.table.repaint();
   }
 
   private void updateTable(String speed, String hostName, String fileName) {
     String[] data = { speed, hostName, fileName };
     tModel.addRow(data);
+    tModel.fireTableDataChanged();
+    System.out.println("Table updated");
   }
 
   /**
@@ -306,7 +309,7 @@ public class P2PClientGUI extends JFrame {
     fileSearch.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
     	  try {
-    	  fileSearch(keywordInput.getText());
+        fileSearch(keywordInput.getText());
     	  }
     	  catch(Exception e) {
     		  e.printStackTrace();
