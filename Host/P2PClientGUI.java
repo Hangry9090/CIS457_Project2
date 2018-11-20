@@ -43,7 +43,6 @@ public class P2PClientGUI extends JFrame {
 
   private JTable table;
   private DefaultTableModel tModel;
-  private String[] columnNames = { "Speed", "Hostname", "Filename" };
 
   /** Centralized server */
   private Socket controlSocket;
@@ -119,7 +118,6 @@ public class P2PClientGUI extends JFrame {
     System.out.println("Received a response");
     System.out.println(word);
     StringTokenizer tokens = new StringTokenizer(word);
-    tModel = new DefaultTableModel(columnNames, 0);
     while (tokens.hasMoreTokens()) {
       String speed = tokens.nextToken();
       String hostName = tokens.nextToken();
@@ -131,11 +129,23 @@ public class P2PClientGUI extends JFrame {
     this.table.repaint();
   }
 
+  private void clearTable(){
+    this.tModel.setRowCount(0);
+  }
+
+  /*private void testTable(){
+    System.out.println("test");
+    //String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
+    String[] testData ={ "124mb", "127.0.0.1", "test file" };
+    tModel.addRow(testData);
+    //this.table = new JTable(testData, columnNames);
+    //table.repaint();
+    tModel.fireTableDataChanged();
+  }*/
+
   private void updateTable(String speed, String hostName, String fileName) {
     String[] data = { speed, hostName, fileName };
     tModel.addRow(data);
-    tModel.fireTableDataChanged();
-    System.out.println("Table updated");
   }
 
   /**
@@ -315,7 +325,7 @@ public class P2PClientGUI extends JFrame {
     gbc_keywordInput.gridy = 1;
 
     // String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
-
+    String[] columnNames = { "Speed", "Hostname", "Filename" };
     tModel = new DefaultTableModel(columnNames, 0);
     table = new JTable(tModel);
     table.setPreferredScrollableViewportSize(new Dimension(300, 100));
@@ -335,7 +345,9 @@ public class P2PClientGUI extends JFrame {
     fileSearch.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
     	  try {
+        clearTable();
         fileSearch(keywordInput.getText());
+        //testTable();
     	  }
     	  catch(Exception e) {
     		  e.printStackTrace();
@@ -351,7 +363,6 @@ public class P2PClientGUI extends JFrame {
           String userInfo = usernameInput.getText() + " " + speedInput.getSelectedItem() + " " + serverInput.getText();
           try {
           	System.out.println("Before server");
-            //server = new FTPServer();
             System.out.println("After server");
             connect(serverInfo, userInfo);
             fileSearch.setEnabled(true);
