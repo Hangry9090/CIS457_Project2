@@ -442,6 +442,7 @@ public class P2PClientGUI extends JFrame {
     commandBtn.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         String command = commandInput.getText();
+        commandInput.setText("");
         StringTokenizer tokens = new StringTokenizer(command);
         commandArea.append(">>" + command + "\n");
         try {
