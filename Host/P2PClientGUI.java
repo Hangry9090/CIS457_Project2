@@ -74,10 +74,9 @@ public class P2PClientGUI extends JFrame {
 
   private void connect(String serverInfo, String userInfo) throws Exception {
 	  
-	  System.out.println("Connect 1");
-	  welcomeData = new ServerSocket(7635);
+	  System.out.println("Starting Connection process");
 	  
-	  DataOutputStream outData;
+	  
 	 
 	  StringTokenizer tokens = new StringTokenizer(serverInfo);
 
@@ -88,8 +87,13 @@ public class P2PClientGUI extends JFrame {
     outToServer = new DataOutputStream(controlSocket.getOutputStream());
     inFromServer = new DataInputStream(new BufferedInputStream(controlSocket.getInputStream()));
 
-    outToServer.writeUTF("7635 " + userInfo);
+    System.out.println("Sending out user info");
+    String toServer = "7635 " + userInfo + "\n";
+    outToServer.writeBytes(toServer);
+    System.out.println("Setting up the data socket");
+    welcomeData = new ServerSocket(7635);
     Socket dataSocket = welcomeData.accept();
+    DataOutputStream outData = new DataOutputStream(dataSocket.getOutputStream());
     
     System.out.println("Sent user info");
     
@@ -97,18 +101,22 @@ public class P2PClientGUI extends JFrame {
     byte[] buffer = new byte[1024];
     int bytes = 0;
     while ((bytes = file.read(buffer)) != -1) {
-      outToServer.write(buffer, 0, bytes);
+      System.out.println(bytes + " bytes sent");
+      outData.write(buffer, 0, bytes);
     }
     file.close();
+    outData.close();
     System.out.println("File sent");
 
   }
 
   private void fileSearch(String keyword) throws Exception {
-	  System.out.println("Search initiated");
-    this.outToServer.writeUTF(keyword);
+    System.out.println("Search initiated");
+    String toServer = keyword + " \n";
+    this.outToServer.writeBytes(toServer);
     System.out.println("Keyword sent");
     String word = this.inFromServer.readUTF();
+    System.out.println("Received a response");
     StringTokenizer tokens = new StringTokenizer(word);
     tModel = new DefaultTableModel(columnNames, 0);
     while (tokens.hasMoreTokens()) {
@@ -311,7 +319,7 @@ public class P2PClientGUI extends JFrame {
       	System.out.println("Connect button pressed");
       	if(!hostnameInput.getText().isEmpty() && !portInput.getText().isEmpty() && !usernameInput.getText().isEmpty() && !serverInput.getText().isEmpty()) {
           String serverInfo = hostnameInput.getText() + " " + portInput.getText();
-          String userInfo = usernameInput.getText() + " " + speedInput.getSelectedIndex() + " " + serverInput.getText();
+          String userInfo = usernameInput.getText() + " " + speedInput.getSelectedItem() + " " + serverInput.getText();
           try {
           	System.out.println("Before server");
             //server = new FTPServer();
@@ -361,7 +369,7 @@ public class P2PClientGUI extends JFrame {
       public void actionPerformed(ActionEvent arg0) {
         String command = commandInput.getText();
         StringTokenizer tokens = new StringTokenizer(command);
-        commandArea.setText(">>" + command);
+        commandArea.append(">>" + command + "\n");
         try {
           if (tokens.nextToken().equals("connect")) {
             String serverName = tokens.nextToken();
@@ -369,9 +377,9 @@ public class P2PClientGUI extends JFrame {
 
             client = new ClientInstance(serverName, port);
 
-            commandArea.setText("Connected to " + serverName + ":" + port);
+            commandArea.append("Connected to " + serverName + ":" + port + "\n");
           } else {
-            commandArea.setText(client.executeCommand(command));
+            commandArea.append(client.executeCommand(command) + "\n");
           }
         } catch (Exception e) {
           e.printStackTrace();

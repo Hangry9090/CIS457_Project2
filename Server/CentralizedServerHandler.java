@@ -40,7 +40,8 @@ public class CentralizedServerHandler implements Runnable {
   public void run() {
     try {
       if (welcomeMessage) {
-        getInitialRequest();
+        String userInfo = this.inFromClient.readLine();
+        getInitialRequest(userInfo);
       } else {
         waitForRequest();
       }
@@ -51,16 +52,14 @@ public class CentralizedServerHandler implements Runnable {
 
   private void waitForRequest() throws Exception {
     while (this.running) {
-      String fromClient = null;
-      fromClient = this.inFromClient.readLine();
+      String fromClient = this.inFromClient.readLine();
+      System.out.println("Keyword received");
       processRequest(fromClient);
     }
   }
 
   private void processRequest(String sentence) throws Exception {
     StringTokenizer tokens = new StringTokenizer(sentence);
-    this.dataSocket = new Socket(this.connectionSocket.getInetAddress(), Integer.parseInt(tokens.nextToken()));
-    this.dataInFromClient = new DataInputStream(new BufferedInputStream(this.dataSocket.getInputStream()));
     //String command = tokens.nextToken();
 
     //if (command.equals("search")) {
@@ -90,12 +89,14 @@ public class CentralizedServerHandler implements Runnable {
     }
   }
 
-  private void getInitialRequest() throws Exception {
-	  System.out.println("Waiting for user's data");
-    String userInfo = this.inFromClient.readLine();
+  private void getInitialRequest(String userInfo) throws Exception {
+    System.out.println(userInfo);
     System.out.println("User's data received");
     StringTokenizer parseUserInfo = new StringTokenizer(userInfo);
-    this.dataSocket = new Socket(this.connectionSocket.getInetAddress(), Integer.parseInt(parseUserInfo.nextToken()));
+    System.out.println("getting the port");
+    int port = Integer.parseInt(parseUserInfo.nextToken());
+    System.out.println("Connecting to socket");
+    this.dataSocket = new Socket(this.connectionSocket.getInetAddress(), port);
     System.out.println("First Token");
     String userName = parseUserInfo.nextToken();
     System.out.println("Second Token");
@@ -106,9 +107,11 @@ public class CentralizedServerHandler implements Runnable {
     UserElement user = new UserElement(userName, speed, hostName);
     System.out.println("Adding the user");
     addUser(user);
+
+    this.dataInFromClient = new DataInputStream(new BufferedInputStream(this.dataSocket.getInputStream()));
     
     System.out.println("User added");
-    
+  
     File file = getFile();
     ArrayList<FileElement> files = parseData(file, user);
     addContent(files);
@@ -121,10 +124,11 @@ public class CentralizedServerHandler implements Runnable {
     FileOutputStream fos = new FileOutputStream("temp.xml");
     System.out.println("File Stream created");
     byte[] fileData = new byte[1024];
-    int bytes;
+    int bytes = 0;
     while ((bytes = this.dataInFromClient.read(fileData)) != -1) {
-      System.out.println("Bytes sent: " + bytes);
+      System.out.println("Bytes received: " + bytes);
       fos.write(fileData, 0, bytes);
+      System.out.println("end");
     }
     System.out.println("File received!");
     fos.close();
@@ -148,12 +152,13 @@ public class CentralizedServerHandler implements Runnable {
     doc.getDocumentElement().normalize();// Make sure there are no funky things going on in the parser
     NodeList nList = doc.getElementsByTagName("file");
     for (int i = 0; i < nList.getLength(); i++) {
-      FileElement temp = null;
       Node node = nList.item(i);
+      System.out.println("\nCurrent Element :" + node.getNodeName());
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         Element eTemp = (Element) node;
-        temp = new FileElement(user, eTemp.getAttribute("name"), eTemp.getAttribute("description"));
-        dataList.add(temp);
+        System.out.println(eTemp.getElementsByTagName("name").item(0).getTextContent());
+        System.out.println(eTemp.getElementsByTagName("description").item(0).getTextContent());
+        dataList.add(new FileElement(user, eTemp.getElementsByTagName("name").item(0).getTextContent(), eTemp.getElementsByTagName("description").item(0).getTextContent()));
       }
     }
     file.delete();
@@ -170,6 +175,7 @@ public class CentralizedServerHandler implements Runnable {
 
   private void addContent(ArrayList<FileElement> newData) {
     synchronized (fileList) {
+      System.out.println("Adding elements to the filelist");
       fileList.addAll(newData);
     }
   }
