@@ -407,6 +407,16 @@ public class P2PClientGUI extends JFrame {
 
     commandInput = new JTextField();
     commandInput.setColumns(15);
+    CommandLbl.setVerticalAlignment(SwingConstants.TOP);
+    CommandLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+    GridBagConstraints gbc_commandInput = new GridBagConstraints();
+    gbc_commandInput.fill = GridBagConstraints.BOTH;
+    gbc_commandInput.insets = new Insets(0, 0, 5, 5);
+    gbc_commandInput.gridx = 1;
+    gbc_commandInput.gridy = 1;
+    
+    
+    
     JTextArea commandArea = new JTextArea(14, 58);
     commandArea.setEditable(false);
     JScrollPane scroll = new JScrollPane(commandArea);
