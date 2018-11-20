@@ -12,8 +12,9 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -265,35 +266,61 @@ public class P2PClientGUI extends JFrame {
     gbc_btnConnnect.gridx = 3;
     gbc_btnConnnect.gridy = 2;
     ConnectionPanel.add(btnConnnect, gbc_btnConnnect);
+    
+
 
     /**
      * Search Panel
      */
+    
     JPanel SearchPanel = new JPanel();
     SearchPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
     GridBagConstraints gbc_SearchPanel = new GridBagConstraints();
     gbc_SearchPanel.insets = new Insets(0, 0, 5, 0);
-    gbc_SearchPanel.gridwidth = 2;
+    gbc_SearchPanel.gridheight = 2;
+    gbc_SearchPanel.gridwidth = 0;
     gbc_SearchPanel.fill = GridBagConstraints.BOTH;
     gbc_SearchPanel.gridx = 0;
-    gbc_SearchPanel.gridy = 2;
+    gbc_SearchPanel.gridy = 3;
+    contentPane.add(SearchPanel, gbc_SearchPanel);
+    GridBagLayout gbl_SearchPanel = new GridBagLayout();
+    gbl_SearchPanel.columnWidths = new int[] { 105, 105, 105, 105, 0 };
+    gbl_SearchPanel.rowHeights = new int[] { 23, 23, 23, 0 };
+    gbl_SearchPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+    gbl_SearchPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+    SearchPanel.setLayout(gbl_SearchPanel);
 
     // Label for keyword search
     JLabel lblKeyword = new JLabel("Keyword:");
+    GridBagConstraints gbc_lblKeyword = new GridBagConstraints();
+    gbc_lblKeyword.fill = GridBagConstraints.BOTH;
+    gbc_lblKeyword.insets = new Insets(0, 0, 5, 0);
+    gbc_lblKeyword.gridx = 0;
+    gbc_lblKeyword.gridy = 1;
 
     // Text input for keyword search
     keywordInput = new JTextField();
     keywordInput.setColumns(25);
+    GridBagConstraints gbc_keywordInput = new GridBagConstraints();
+    gbc_keywordInput.fill = GridBagConstraints.BOTH;
+    gbc_keywordInput.insets = new Insets(0, 0, 5, 0);
+    gbc_keywordInput.gridx = 1;
+    gbc_keywordInput.gridy = 1;
 
-    // String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
+
 
     tModel = new DefaultTableModel(columnNames, 0);
     table = new JTable(tModel);
     table.setPreferredScrollableViewportSize(new Dimension(300, 100));
-    // table.setFillsViewportHeight(true);
 
     // Search Button for keyword search
     JButton fileSearch = new JButton("Search");
+    GridBagConstraints gbc_fileSearch = new GridBagConstraints();
+    gbc_fileSearch.fill = GridBagConstraints.BOTH;
+    gbc_fileSearch.insets = new Insets(0, 0, 5, 0);
+    gbc_fileSearch.gridx = 2;
+    gbc_fileSearch.gridy = 1;
+    
     fileSearch.setEnabled(false);
     fileSearch.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
@@ -326,42 +353,65 @@ public class P2PClientGUI extends JFrame {
       });
     
     JScrollPane test = new JScrollPane(table);
+    GridBagConstraints gbc_test = new GridBagConstraints();
+    gbc_test.fill = GridBagConstraints.BOTH;
+    gbc_test.insets = new Insets(0, 0, 5, 0);
+    gbc_test.gridx = 1;
+    gbc_test.gridy = 2;
 
     contentPane.add(SearchPanel, gbc_SearchPanel);
-    SearchPanel.add(lblKeyword);
-    SearchPanel.add(keywordInput);
-    SearchPanel.add(fileSearch);
-    SearchPanel.add(test);
-
+    SearchPanel.add(lblKeyword,gbc_lblKeyword);
+    SearchPanel.add(keywordInput, gbc_keywordInput);
+    SearchPanel.add(fileSearch, gbc_fileSearch);
+    SearchPanel.add(test, gbc_test);
     /**
      * FTP Panel
      */
+    
     JPanel FTPPanel = new JPanel();
-    FTPPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
+    ConnectionPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
     GridBagConstraints gbc_FTPPanel = new GridBagConstraints();
     gbc_FTPPanel.insets = new Insets(0, 0, 5, 0);
-    gbc_FTPPanel.gridwidth = 2;
+    gbc_FTPPanel.gridheight = 2;
+    gbc_FTPPanel.gridwidth = 0;
     gbc_FTPPanel.fill = GridBagConstraints.BOTH;
     gbc_FTPPanel.gridx = 0;
-    gbc_FTPPanel.gridy = 3;
+    gbc_FTPPanel.gridy = 5;
+    contentPane.add(FTPPanel, gbc_FTPPanel);
+    GridBagLayout gbl_FTPPanel = new GridBagLayout();
+    gbl_FTPPanel.columnWidths = new int[] { 105, 105, 105, 105, 0 };
+    gbl_FTPPanel.rowHeights = new int[] { 23, 23, 23, 0 };
+    gbl_FTPPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+    gbl_FTPPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+    FTPPanel.setLayout(gbl_FTPPanel);
 
-    JLabel CommandLbl = new JLabel("Enter Command: ");
-
-    commandInput = new JTextField();
-    commandInput.setColumns(20);
 
     JTextArea commandArea = new JTextArea(14, 58);
     commandArea.setEditable(false);
     JScrollPane scroll = new JScrollPane(commandArea);
     scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    GridBagConstraints gbc_commandArea = new GridBagConstraints();
+    gbc_commandArea.fill = GridBagConstraints.BOTH;
+    gbc_commandArea.insets = new Insets(0, 0, 5, 5);
+    gbc_commandArea.gridx = 1;
+    gbc_commandArea.gridy = 3;
+    
 
     // Search Button for keyword search
     JButton commandBtn = new JButton("Go");
+    GridBagConstraints gbc_commandBtn = new GridBagConstraints();
+    gbc_commandBtn.fill = GridBagConstraints.BOTH;
+    gbc_commandBtn.insets = new Insets(0, 0, 5, 0);
+    gbc_commandBtn.gridx = 2;
+    gbc_commandBtn.gridy = 1;
+    
+    
+  
     commandBtn.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         String command = commandInput.getText();
         StringTokenizer tokens = new StringTokenizer(command);
-        commandArea.setText(">>" + command);
+        commandArea.append(">>" + command + "\n");
         try {
           if (tokens.nextToken().equals("connect")) {
             String serverName = tokens.nextToken();
@@ -369,9 +419,10 @@ public class P2PClientGUI extends JFrame {
 
             client = new ClientInstance(serverName, port);
 
-            commandArea.setText("Connected to " + serverName + ":" + port);
+
+            commandArea.append("Connected to " + serverName + ":" + port + "\n");
           } else {
-            commandArea.setText(client.executeCommand(command));
+            commandArea.append(client.executeCommand(command) + "\n");
           }
         } catch (Exception e) {
           e.printStackTrace();
@@ -379,12 +430,49 @@ public class P2PClientGUI extends JFrame {
 
       }
     });
+    
+    JButton btnDisconnect = new JButton("Disconnect");
+    GridBagConstraints gbc_btnDisconnect = new GridBagConstraints();
+    gbc_btnDisconnect.fill = GridBagConstraints.BOTH;
+    gbc_btnDisconnect.insets = new Insets(0, 0, 5, 0);
+    gbc_btnDisconnect.gridx = 1;
+    gbc_btnDisconnect.gridy = 4;
+    
+    
+    btnDisconnect.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent arg0) {
+         
+        }
+    });
 
+
+    JLabel CommandLbl = new JLabel("Enter Command: ");
+    CommandLbl.setVerticalAlignment(SwingConstants.TOP);
+    CommandLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+    GridBagConstraints gbc_CommandLbl = new GridBagConstraints();
+    gbc_CommandLbl.fill = GridBagConstraints.BOTH;
+    gbc_CommandLbl.insets = new Insets(0, 0, 5, 5);
+    gbc_CommandLbl.gridx = 0;
+    gbc_CommandLbl.gridy = 1;
+    
+    
+    commandInput = new JTextField();
+    commandInput.setColumns(15);
+    GridBagConstraints gbc_commandInput = new GridBagConstraints();
+    gbc_commandInput.fill = GridBagConstraints.BOTH;
+    gbc_commandInput.insets = new Insets(0, 0, 5, 0);
+    gbc_commandInput.gridx = 1;
+    gbc_commandInput.gridy = 1;
+
+  
+    
     contentPane.add(FTPPanel, gbc_FTPPanel);
-    FTPPanel.add(CommandLbl);
-    FTPPanel.add(commandInput);
-    FTPPanel.add(commandBtn);
-    FTPPanel.add(scroll);
+    FTPPanel.add(CommandLbl, gbc_CommandLbl);
+    FTPPanel.add(commandInput, gbc_commandInput);
+    FTPPanel.add(commandBtn, gbc_commandBtn);
+    FTPPanel.add(scroll, gbc_commandArea);
+    FTPPanel.add(btnDisconnect, gbc_btnDisconnect);
+
 
   }
 
