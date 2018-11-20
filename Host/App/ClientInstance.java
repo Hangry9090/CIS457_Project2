@@ -65,7 +65,7 @@ public class ClientInstance {
    * @throws Exception
    */
   private void retrieveFile(String fileName) throws Exception {
-    FileOutputStream retrievedFile = new FileOutputStream(fileName);
+    FileOutputStream retrievedFile = new FileOutputStream("./Download/" + fileName);
     byte[] fileData = new byte[1024];
     int bytes = 0;
     while ((bytes = inData.read(fileData)) != -1) {

@@ -1,13 +1,19 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.lang.Thread;
 
-public class FTPServer {
+public class FTPServer implements Runnable {
+  private ServerSocket welcomeSocket;
 
-  public static void main(String[] args) throws Exception {
+  public FTPServer() throws Exception {
     System.out.println("Welcome to our server!");
-    ServerSocket welcomeSocket = new ServerSocket(2841);
+    welcomeSocket = new ServerSocket(2841);
+  }
+
+  public void run() {
     while (true) {
+      try{
       Socket connectionSocket = welcomeSocket.accept();
       System.out.println("New client connected");
 
@@ -15,6 +21,11 @@ public class FTPServer {
 
       Thread thread = new Thread(connection);
       thread.start();
+      }
+      catch(Exception e){
+        e.printStackTrace();
+      }
     }
   }
+
 }

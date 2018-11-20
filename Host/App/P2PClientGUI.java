@@ -52,7 +52,7 @@ public class P2PClientGUI extends JFrame {
   /** Host: P2P Client and Server */
   private ClientInstance client;
   private ServerSocket welcomeData;
-  //private FTPServer server;
+  // private FTPServer server;
 
   /**
    * Launch the application.
@@ -64,6 +64,9 @@ public class P2PClientGUI extends JFrame {
           P2PClientGUI frame = new P2PClientGUI();
           frame.pack();
           frame.setVisible(true);
+          FTPServer server = new FTPServer();
+          Thread thread = new Thread(server);
+          thread.start();
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -72,12 +75,10 @@ public class P2PClientGUI extends JFrame {
   }
 
   private void connect(String serverInfo, String userInfo) throws Exception {
-	  
-	  System.out.println("Starting Connection process");
-	  
-	  
-	 
-	  StringTokenizer tokens = new StringTokenizer(serverInfo);
+
+    System.out.println("Starting Connection process");
+
+    StringTokenizer tokens = new StringTokenizer(serverInfo);
 
     String serverName = tokens.nextToken();
     int controlPort = Integer.parseInt(tokens.nextToken());
@@ -93,9 +94,9 @@ public class P2PClientGUI extends JFrame {
     welcomeData = new ServerSocket(7635);
     Socket dataSocket = welcomeData.accept();
     DataOutputStream outData = new DataOutputStream(dataSocket.getOutputStream());
-    
+
     System.out.println("Sent user info");
-    
+
     FileInputStream file = new FileInputStream("filelist.xml");
     byte[] buffer = new byte[1024];
     int bytes = 0;
@@ -129,19 +130,17 @@ public class P2PClientGUI extends JFrame {
     this.table.repaint();
   }
 
-  private void clearTable(){
+  private void clearTable() {
     this.tModel.setRowCount(0);
   }
 
-  /*private void testTable(){
-    System.out.println("test");
-    //String[][] testData = { { "124mb", "127.0.0.1", "test file" } };
-    String[] testData ={ "124mb", "127.0.0.1", "test file" };
-    tModel.addRow(testData);
-    //this.table = new JTable(testData, columnNames);
-    //table.repaint();
-    tModel.fireTableDataChanged();
-  }*/
+  /*
+   * private void testTable(){ System.out.println("test"); //String[][] testData =
+   * { { "124mb", "127.0.0.1", "test file" } }; String[] testData ={ "124mb",
+   * "127.0.0.1", "test file" }; tModel.addRow(testData); //this.table = new
+   * JTable(testData, columnNames); //table.repaint();
+   * tModel.fireTableDataChanged(); }
+   */
 
   private void updateTable(String speed, String hostName, String fileName) {
     String[] data = { speed, hostName, fileName };
@@ -279,7 +278,6 @@ public class P2PClientGUI extends JFrame {
     ConnectionPanel.add(speedInput, gbc_speedInput);
 
     JButton btnConnnect = new JButton("Connect");
-    
 
     GridBagConstraints gbc_btnConnnect = new GridBagConstraints();
     gbc_btnConnnect.fill = GridBagConstraints.BOTH;
@@ -331,7 +329,6 @@ public class P2PClientGUI extends JFrame {
     table.setPreferredScrollableViewportSize(new Dimension(300, 100));
     // table.setFillsViewportHeight(true);
 
-
     // Search Button for keyword search
     JButton fileSearch = new JButton("Search");
     GridBagConstraints gbc_fileSearch = new GridBagConstraints();
@@ -340,29 +337,28 @@ public class P2PClientGUI extends JFrame {
     gbc_fileSearch.gridx = 2;
     gbc_fileSearch.gridy = 1;
     fileSearch.setEnabled(false);
-    
-    
+
     fileSearch.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-    	  try {
-        clearTable();
-        fileSearch(keywordInput.getText());
-        //testTable();
-    	  }
-    	  catch(Exception e) {
-    		  e.printStackTrace();
-    	  }
+        try {
+          clearTable();
+          fileSearch(keywordInput.getText());
+          // testTable();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
     });
-    
+
     btnConnnect.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent p) {
-      	System.out.println("Connect button pressed");
-      	if(!hostnameInput.getText().isEmpty() && !portInput.getText().isEmpty() && !usernameInput.getText().isEmpty() && !serverInput.getText().isEmpty()) {
+      public void actionPerformed(ActionEvent p) {
+        System.out.println("Connect button pressed");
+        if (!hostnameInput.getText().isEmpty() && !portInput.getText().isEmpty() && !usernameInput.getText().isEmpty()
+            && !serverInput.getText().isEmpty()) {
           String serverInfo = hostnameInput.getText() + " " + portInput.getText();
           String userInfo = usernameInput.getText() + " " + speedInput.getSelectedItem() + " " + serverInput.getText();
           try {
-          	System.out.println("Before server");
+            System.out.println("Before server");
             System.out.println("After server");
             connect(serverInfo, userInfo);
             fileSearch.setEnabled(true);
@@ -370,9 +366,9 @@ public class P2PClientGUI extends JFrame {
             e.printStackTrace();
           }
         }
-        }
-      });
-    
+      }
+    });
+
     JScrollPane test = new JScrollPane(table);
     GridBagConstraints gbc_test = new GridBagConstraints();
     gbc_test.fill = GridBagConstraints.BOTH;
@@ -381,7 +377,7 @@ public class P2PClientGUI extends JFrame {
     gbc_test.gridy = 2;
 
     contentPane.add(SearchPanel, gbc_SearchPanel);
-    SearchPanel.add(lblKeyword,gbc_lblKeyword);
+    SearchPanel.add(lblKeyword, gbc_lblKeyword);
     SearchPanel.add(keywordInput, gbc_keywordInput);
     SearchPanel.add(fileSearch, gbc_fileSearch);
     SearchPanel.add(test, gbc_test);
@@ -405,8 +401,7 @@ public class P2PClientGUI extends JFrame {
     gbl_FTPPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
     gbl_FTPPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
     FTPPanel.setLayout(gbl_FTPPanel);
-    
-    
+
     JLabel CommandLbl = new JLabel("Enter Command: ");
     CommandLbl.setVerticalAlignment(SwingConstants.TOP);
     CommandLbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -425,9 +420,7 @@ public class P2PClientGUI extends JFrame {
     gbc_commandInput.insets = new Insets(0, 0, 5, 5);
     gbc_commandInput.gridx = 1;
     gbc_commandInput.gridy = 1;
-    
-    
-    
+
     JTextArea commandArea = new JTextArea(14, 58);
     commandArea.setEditable(false);
     JScrollPane scroll = new JScrollPane(commandArea);
@@ -437,7 +430,6 @@ public class P2PClientGUI extends JFrame {
     gbc_commandArea.insets = new Insets(0, 0, 5, 5);
     gbc_commandArea.gridx = 1;
     gbc_commandArea.gridy = 3;
-    
 
     // Search Button for keyword search
     JButton commandBtn = new JButton("Go");
@@ -446,9 +438,7 @@ public class P2PClientGUI extends JFrame {
     gbc_commandBtn.insets = new Insets(0, 0, 5, 0);
     gbc_commandBtn.gridx = 2;
     gbc_commandBtn.gridy = 1;
-    
-    
-   
+
     commandBtn.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         String command = commandInput.getText();
@@ -471,19 +461,24 @@ public class P2PClientGUI extends JFrame {
 
       }
     });
-    
+
     JButton btnDisconnect = new JButton("Disconnect");
     GridBagConstraints gbc_btnDisconnect = new GridBagConstraints();
     gbc_btnDisconnect.fill = GridBagConstraints.BOTH;
     gbc_btnDisconnect.insets = new Insets(0, 0, 5, 0);
     gbc_btnDisconnect.gridx = 1;
     gbc_btnDisconnect.gridy = 4;
-    
-    
+
     btnDisconnect.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent arg0) {
-         
+      public void actionPerformed(ActionEvent arg0) {
+        String command = "quit:";
+        commandArea.append(">>" + command + "\n");
+        try {
+        commandArea.append(client.executeCommand(command) + "\n");
+        }catch(Exception e){
+          e.printStackTrace();
         }
+      }
     });
 
     contentPane.add(FTPPanel, gbc_FTPPanel);

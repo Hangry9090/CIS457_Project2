@@ -62,7 +62,7 @@ public class FTPRequest implements Runnable {
   }
 
   private void retrCommand(String fileName) throws Exception {
-    FileInputStream fileToClient = new FileInputStream("./" + fileName);
+    FileInputStream fileToClient = new FileInputStream("./ServerFiles/" + fileName);
     byte[] fileData = new byte[1024];
     int bytes = 0;
     while ((bytes = fileToClient.read(fileData, 0, fileData.length)) != -1) {
